@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # Celestial Simulation Application
 
 This project is a celestial simulation application that allows you to visualize and interact with celestial bodies. It's built using Next.js and provides a dynamic and engaging way to explore the motion of celestial objects.
@@ -63,7 +63,3 @@ Now that the application is running, you can interact with the simulation:
 * Change the initial parameters.
 * Start or pause the simulation.
 * Change the speed of the simulation.
-=======
-# Problema-3-cuerpos
-Segundo Prototipo creado por FireBase, describe y simula el comportamiento de cuerpos celestes, teniendo diferentes escenarios y podiendo cambiar los atributos de cada uno de estos
->>>>>>> f343fd5189a5c4ce5feb6959add1624b1b331e25
