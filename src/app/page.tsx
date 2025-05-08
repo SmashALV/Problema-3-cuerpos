@@ -70,7 +70,7 @@ export default function Home() {
       </ScrollArea>
 
       {/* Simulation Area */}
-      <main className="flex-1 flex items-center justify-center p-4 bg-black/50 md:bg-transparent md:p-8">
+      <main className="flex-1 flex items-center justify-center p-4 bg-black/50 md:bg-transparent md:p-8 overflow-auto">
         {initialConditions ? (
           <CelestialSimulation
             initialConditions={initialConditions}
