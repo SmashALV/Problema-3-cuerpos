@@ -20,8 +20,8 @@ export const BODY_NAMES = ['Alpha', 'Beta', 'Gamma'];
 // Default initial conditions if AI fails or before first generation
 export const DEFAULT_INITIAL_CONDITIONS: GenerateInitialConditionsOutput = {
   body1: { mass: 1000, positionX: 0, positionY: 0, velocityX: 0, velocityY: 0 },
-  body2: { mass: 10, positionX: 200, positionY: 0, velocityX: 0, velocityY: 2 },
-  body3: { mass: 1, positionX: 250, positionY: 0, velocityX: 0, velocityY: -1 },
+  body2: { mass: 10, positionX: 400, positionY: 0, velocityX: 0, velocityY: 1.4 }, // Increased distance, adjusted velocity
+  body3: { mass: 1, positionX: 500, positionY: 0, velocityX: 0, velocityY: -0.7 }, // Increased distance, adjusted velocity
 };
 
 export interface PredefinedScenario {
@@ -32,28 +32,29 @@ export interface PredefinedScenario {
 export const PREDEFINED_SCENARIOS: PredefinedScenario[] = [
   {
     name: "Sun & Two Planets (Default)",
-    description: "A sun-like star with two orbiting planets in a somewhat stable configuration. One planet is significantly larger than the other.",
+    description: "A sun-like star with two orbiting planets in a somewhat stable configuration, with significant separation. One planet is significantly larger than the other.",
   },
   {
     name: "Stable Figure-Eight",
-    description: "Three equal-mass bodies in a stable figure-eight periodic orbit. This is a known choreography where bodies trace a figure-eight path.",
+    description: "Three equal-mass bodies in a stable, well-separated figure-eight periodic orbit. This known choreography should allow bodies to trace a clear figure-eight path over a significant area.",
   },
   {
     name: "Lagrangian Point L4/L5",
-    description: "Two large bodies in a stable orbit (e.g., a star and a large planet), and a third, much smaller body (e.g., an asteroid) positioned near one of the L4 or L5 Lagrangian points relative to the two larger bodies, aiming for a co-orbital configuration forming a near-stable equilateral triangle.",
+    description: "Two large bodies in a wide, stable orbit (e.g., a star and a large planet), and a third, much smaller body (e.g., an asteroid) positioned near one of the L4 or L5 Lagrangian points. This setup should form a clearly visible, near-stable equilateral triangle configuration.",
   },
   {
     name: "Hierarchical System",
-    description: "A close binary pair of stars (Body 1 and Body 2) with comparable masses, and a third, less massive body (Body 3) orbiting the center of mass of the binary pair at a much larger distance, creating a stable hierarchical triple system.",
+    description: "A binary pair of stars (Body 1 and Body 2) with distinct separation and comparable masses, and a third, less massive body (Body 3) orbiting the center of mass of the binary pair at a significantly larger distance. The overall system should be spread out enough for clear visualization of the hierarchy.",
   },
   {
     name: "Chaotic Ejection",
-    description: "Three bodies of comparable, moderate masses starting relatively close to each other with small initial velocities, designed to lead to a chaotic interaction where one body is eventually ejected from the system.",
+    description: "Three bodies of comparable, moderate masses starting with enough initial separation to be distinct, but with positions and velocities that will lead to close, energetic encounters resulting in chaotic interaction and the eventual ejection of one body. Avoid immediate overlap or extreme initial closeness.",
   },
   {
     name: "Playful Triangle Dance",
-    description: "Three bodies of equal mass, initially positioned at the vertices of an equilateral triangle, with initial velocities that cause them to engage in a complex, intertwined dance around each other while remaining bound before potentially transitioning to chaotic behavior.",
+    description: "Three bodies of equal mass, initially positioned at the vertices of a reasonably sized equilateral triangle. Their initial velocities should induce a complex, visible, and intertwined dance over a noticeable area while remaining bound, before potentially transitioning to chaotic behavior.",
   }
 ];
 
 export const DEFAULT_CONFIGURATION_DESCRIPTION = PREDEFINED_SCENARIOS[0].description;
+
