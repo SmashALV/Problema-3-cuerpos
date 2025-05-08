@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -8,6 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Play, Pause, RotateCcw, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useLanguage } from '@/contexts/language-context';
+import { getTranslatedText } from '@/lib/translations';
 
 type SimulationControlsProps = {
   isRunning: boolean;
@@ -15,7 +16,7 @@ type SimulationControlsProps = {
   onReset: () => void;
   simulationSpeed: number;
   onSpeedChange: (speed: number) => void;
-  isLoading: boolean; // General loading state (e.g., for AI or reset)
+  isLoading: boolean; 
 };
 
 const MIN_SPEED = 0.1;
@@ -30,6 +31,7 @@ export function SimulationControls({
   isLoading,
 }: SimulationControlsProps) {
   const [speedInputValue, setSpeedInputValue] = useState<string>(simulationSpeed.toString());
+  const { language } = useLanguage();
 
   useEffect(() => {
     setSpeedInputValue(simulationSpeed.toFixed(1));
@@ -52,14 +54,14 @@ export function SimulationControls({
   const handleSpeedInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       handleSpeedInputBlur();
-      (event.target as HTMLInputElement).blur(); // Remove focus
+      (event.target as HTMLInputElement).blur(); 
     }
   };
 
   return (
     <Card className="bg-card/80 shadow-lg">
       <CardHeader>
-        <CardTitle>Simulation Controls</CardTitle>
+        <CardTitle>{getTranslatedText('simulationControlsTitle', language)}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex space-x-2">
@@ -71,20 +73,20 @@ export function SimulationControls({
             ) : (
               <Play className="mr-2 h-5 w-5" />
             )}
-            {isLoading && !isRunning ? 'Loading...' : isRunning ? 'Pause' : 'Play'}
+            {isLoading && !isRunning ? getTranslatedText('loading', language) : isRunning ? getTranslatedText('pause', language) : getTranslatedText('play', language)}
           </Button>
           <Button onClick={onReset} disabled={isLoading || isRunning} variant="outline" className="flex-1">
-            {isLoading && isRunning ? (
+            {isLoading && isRunning ? ( // Show loader on reset only if it's also running (less likely state, but defensive)
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
             ) : (
                 <RotateCcw className="mr-2 h-5 w-5" />
             )}
-            Reset
+            {getTranslatedText('reset', language)}
           </Button>
         </div>
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label htmlFor="speed-slider">Simulation Speed</Label>
+            <Label htmlFor="speed-slider">{getTranslatedText('simulationSpeed', language)}</Label>
             <span className="text-sm text-muted-foreground">{simulationSpeed.toFixed(1)}x</span>
           </div>
           <div className="flex items-center space-x-2">
@@ -109,7 +111,7 @@ export function SimulationControls({
               step={0.1}
               disabled={isLoading}
               className="w-20 h-9 text-sm"
-              aria-label="Simulation speed input"
+              aria-label={getTranslatedText('simulationSpeedInputLabel', language)}
             />
           </div>
         </div>
@@ -117,4 +119,3 @@ export function SimulationControls({
     </Card>
   );
 }
-

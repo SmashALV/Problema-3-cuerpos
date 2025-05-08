@@ -12,10 +12,11 @@ export interface BodyState {
   color: string;
   radius: number; 
   path: { x: number; y: number }[];
+  nameKey: 'alpha' | 'beta' | 'gamma'; // For translation
 }
 
 export const BODY_COLORS = ['#FFB347', '#B2FFFF', '#E6E6FA']; // Pastel Orange, Pale Cyan, Lavender
-export const BODY_NAMES = ['Alpha', 'Beta', 'Gamma'];
+export const BODY_NAME_KEYS: ['alpha', 'beta', 'gamma'] = ['alpha', 'beta', 'gamma'];
 
 // Default initial conditions if AI fails or before first generation
 export const DEFAULT_INITIAL_CONDITIONS: GenerateInitialConditionsOutput = {
@@ -25,10 +26,11 @@ export const DEFAULT_INITIAL_CONDITIONS: GenerateInitialConditionsOutput = {
 };
 
 export interface PredefinedScenario {
-  name: string;
+  name: string; // This will be the English name, used as a key for translation
   description: string;
 }
 
+// IMPORTANT: The 'name' field here must exactly match the keys in `getTranslatedScenarioName` in translations.ts
 export const PREDEFINED_SCENARIOS: PredefinedScenario[] = [
   {
     name: "Sun & Two Planets (Default)",

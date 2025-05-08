@@ -1,10 +1,11 @@
-
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import type { BodyState, GenerateInitialConditionsOutput } from '@/types/celestial-types';
-import { BODY_COLORS, BODY_NAMES } from '@/types/celestial-types';
+import { BODY_COLORS, BODY_NAME_KEYS } from '@/types/celestial-types';
 import { updateBodies } from '@/lib/simulation-engine';
+import { useLanguage } from '@/contexts/language-context';
+import { getTranslatedText } from '@/lib/translations';
 
 interface CelestialSimulationProps {
   initialConditions: GenerateInitialConditionsOutput | null;
@@ -18,7 +19,8 @@ const CANVAS_HEIGHT = 600;
 const BODY_BASE_RADIUS = 5; 
 const PATH_OPACITY = 0.7;
 const TIME_STEP_BASE = 0.01;
-const PARAM_TEXT_COLOR = "rgba(54, 64, 77, 0.9)"; // Dark text for light pastel background
+const PARAM_TEXT_COLOR_LIGHT = "rgba(54, 64, 77, 0.9)"; 
+const PARAM_TEXT_COLOR_DARK = "rgba(224, 239, 245, 0.9)";
 const PARAM_TEXT_OFFSET_Y = 15; 
 const PARAM_LINE_HEIGHT_FACTOR = 1.2; 
 
@@ -34,6 +36,22 @@ export function CelestialSimulation({
   const [scale, setScale] = useState(1);
   const [originOffset, setOriginOffset] = useState({ x: 0, y: 0 });
   const [bodyImages, setBodyImages] = useState<(HTMLImageElement | null)[]>([]);
+  const { language } = useLanguage();
+  const [currentTheme, setCurrentTheme] = useState('light');
+
+  useEffect(() => {
+    // Track theme changes for canvas text color
+    const observer = new MutationObserver((mutationsList) => {
+      for (const mutation of mutationsList) {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+          setCurrentTheme(document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+        }
+      }
+    });
+    observer.observe(document.documentElement, { attributes: true });
+    setCurrentTheme(document.documentElement.classList.contains('dark') ? 'dark' : 'light'); // Initial check
+    return () => observer.disconnect();
+  }, []);
 
   const initializeBodies = useCallback(() => {
     if (!initialConditions) return;
@@ -52,6 +70,7 @@ export function CelestialSimulation({
       color: BODY_COLORS[index % BODY_COLORS.length],
       radius: BODY_BASE_RADIUS * Math.max(1, Math.log10(Math.max(1,b.mass))), 
       path: [{ x: b.positionX, y: b.positionY }],
+      nameKey: BODY_NAME_KEYS[index % BODY_NAME_KEYS.length],
     }));
     setBodies(newBodies);
 
@@ -86,22 +105,18 @@ export function CelestialSimulation({
     const loadImage = (src: string): Promise<HTMLImageElement> =>
       new Promise((resolve, reject) => {
         const img = new Image();
-        img.crossOrigin = "anonymous"; // Required for picsum.photos if canvas becomes tainted
+        img.crossOrigin = "anonymous";
         img.onload = () => resolve(img);
         img.onerror = (err) => {
           console.error("Failed to load image:", src, err);
-          // Resolve with a null or a placeholder/error indicator if needed
-          // For simplicity, we'll let it be null and fallback to circle
-          resolve(new Image()); // Resolve with empty image to avoid breaking Promise.all
+          resolve(new Image()); 
         }
         img.src = src;
       });
     
-    // data-ai-hint for body1: "star sun", body2: "planet earth", body3: "planet jupiter" (example)
-    // These are conceptual hints for the image sources.
-    const seedSuffix = simulationKey ? `_${simulationKey}` : Date.now(); // Ensure variety
+    const seedSuffix = simulationKey ? `_${simulationKey}` : Date.now();
     const imagePromises = [
-      loadImage(`https://picsum.photos/seed/star${seedSuffix}/60/60`), // Larger for "star"
+      loadImage(`https://picsum.photos/seed/star${seedSuffix}/60/60`),
       loadImage(`https://picsum.photos/seed/planetA${seedSuffix}/50/50`),
       loadImage(`https://picsum.photos/seed/planetB${seedSuffix}/40/40`),
     ];
@@ -110,7 +125,7 @@ export function CelestialSimulation({
       .then(setBodyImages)
       .catch(err => {
         console.error("Error loading body images:", err);
-        setBodyImages([null, null, null]); // Set to nulls on error
+        setBodyImages([null, null, null]);
       });
   }, [initialConditions, simulationKey]);
 
@@ -147,11 +162,50 @@ export function CelestialSimulation({
       const img = bodyImages[index];
       if (img?.complete && img.naturalHeight !== 0) {
         const aspectRatio = img.naturalWidth / img.naturalHeight;
-        // Scale image size based on body.radius, ensuring it's visible
-        const baseDrawSize = Math.max(10, body.radius * 2.5); // Minimum size of 10px, scaled by radius
-        const drawHeight = baseDrawSize / Math.sqrt(scale);
-        const drawWidth = drawHeight * aspectRatio;
-        ctx.drawImage(img, body.x - drawWidth / 2, body.y - drawHeight / 2, drawWidth, drawHeight);
+        const baseDrawSize = Math.max(10, body.radius * 2.5);
+        let imgDrawHeight = baseDrawSize / Math.sqrt(scale);
+        let imgDrawWidth = imgDrawHeight * aspectRatio;
+        
+        const diameter = Math.min(imgDrawWidth, imgDrawHeight); // Ensure circular clipping
+        const radiusForClip = diameter / 2;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(body.x, body.y, radiusForClip, 0, Math.PI * 2, true);
+        ctx.closePath();
+        ctx.clip();
+        
+        // Draw image centered to fill the clipped circle
+        // If image is not square, this will crop it to fit the circle
+        if (imgDrawWidth > imgDrawHeight) { // Landscape or square
+            imgDrawHeight = diameter;
+            imgDrawWidth = diameter * aspectRatio;
+        } else { // Portrait
+            imgDrawWidth = diameter;
+            imgDrawHeight = diameter / aspectRatio;
+        }
+        // Ensure the image covers the circle area before clipping.
+        // The smaller dimension of the image should match the diameter of the circle.
+        let sx = 0, sy = 0, sWidth = img.naturalWidth, sHeight = img.naturalHeight;
+        const targetDiameter = diameter;
+        
+        if (img.naturalWidth > img.naturalHeight) { // Landscape
+            sWidth = img.naturalHeight;
+            sx = (img.naturalWidth - img.naturalHeight) / 2;
+        } else if (img.naturalHeight > img.naturalWidth) { // Portrait
+            sHeight = img.naturalWidth;
+            sy = (img.naturalHeight - img.naturalWidth) / 2;
+        }
+
+
+        ctx.drawImage(
+            img,
+            sx, sy, sWidth, sHeight, // Source rectangle (cropped to square)
+            body.x - targetDiameter / 2, body.y - targetDiameter / 2, // Destination x, y
+            targetDiameter, targetDiameter // Destination width, height
+        );
+        
+        ctx.restore(); // Restore context to remove clipping
       } else {
         ctx.beginPath();
         ctx.arc(body.x, body.y, body.radius / Math.sqrt(scale) , 0, 2 * Math.PI);
@@ -161,16 +215,16 @@ export function CelestialSimulation({
       
       // Draw body parameters
       const fontSize = 10 / scale;
-      ctx.fillStyle = PARAM_TEXT_COLOR;
+      ctx.fillStyle = currentTheme === 'dark' ? PARAM_TEXT_COLOR_DARK : PARAM_TEXT_COLOR_LIGHT;
       ctx.font = `${fontSize}px sans-serif`;
       ctx.textAlign = 'left';
 
-      const bodyName = BODY_NAMES[index % BODY_NAMES.length];
+      const bodyName = getTranslatedText(body.nameKey as 'alpha' | 'beta' | 'gamma', language);
       const textLines = [
         `${bodyName}`,
-        `Mass: ${body.mass.toFixed(1)}`,
-        `Pos: (${body.x.toFixed(1)}, ${body.y.toFixed(1)})`,
-        `Vel: (${body.vx.toFixed(1)}, ${body.vy.toFixed(1)})`,
+        `${getTranslatedText('mass', language)}: ${body.mass.toFixed(1)}`,
+        `${getTranslatedText('positionXY', language)}: (${body.x.toFixed(1)}, ${body.y.toFixed(1)})`,
+        `${getTranslatedText('velocityVxVy', language)}: (${body.vx.toFixed(1)}, ${body.vy.toFixed(1)})`,
       ];
       
       const textX = body.x + (body.radius / Math.sqrt(scale)) + (5 / scale) ;
@@ -183,11 +237,11 @@ export function CelestialSimulation({
     });
     ctx.restore();
 
-  }, [bodies, scale, originOffset, bodyImages]);
+  }, [bodies, scale, originOffset, bodyImages, language, currentTheme]);
 
   useEffect(() => {
     draw();
-  }, [draw, bodies, bodyImages]); // Redraw if bodyImages change too
+  }, [draw, bodies, bodyImages]); 
 
   useEffect(() => {
     if (isRunning) {
@@ -200,14 +254,14 @@ export function CelestialSimulation({
       if (animationFrameIdRef.current) {
         cancelAnimationFrame(animationFrameIdRef.current);
       }
-      draw();
+      draw(); // Ensure a final draw when paused
     }
     return () => {
       if (animationFrameIdRef.current) {
         cancelAnimationFrame(animationFrameIdRef.current);
       }
     };
-  }, [isRunning, simulationSpeed, draw]);
+  }, [isRunning, simulationSpeed, draw]); // Removed updateBodies from dependencies as it's stable
 
   return (
     <canvas

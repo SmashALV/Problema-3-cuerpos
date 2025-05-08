@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
+import React, { useState, useTransition, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -19,6 +19,8 @@ import type { GenerateInitialConditionsOutput } from '@/types/celestial-types';
 import { DEFAULT_CONFIGURATION_DESCRIPTION, PREDEFINED_SCENARIOS } from '@/types/celestial-types';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { useLanguage } from '@/contexts/language-context';
+import { getTranslatedText, getTranslatedScenarioName } from '@/lib/translations';
 
 const formSchema = z.object({
   configurationDescription: z.string().min(10, 'Description must be at least 10 characters.'),
@@ -32,6 +34,7 @@ type ConfigurationFormProps = {
 export function ConfigurationForm({ onConditionsGenerated, setIsLoadingAI }: ConfigurationFormProps) {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
+  const { language } = useLanguage();
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -40,11 +43,15 @@ export function ConfigurationForm({ onConditionsGenerated, setIsLoadingAI }: Con
     },
   });
 
-  // Initialize selectedScenarioName based on the default description
+  const translatedScenarios = useMemo(() => PREDEFINED_SCENARIOS.map(scenario => ({
+    ...scenario,
+    translatedName: getTranslatedScenarioName(scenario.name, language),
+  })), [language]);
+
   const [selectedScenarioName, setSelectedScenarioName] = useState<string>(() => {
     const initialDescription = form.getValues("configurationDescription");
     const initialScenario = PREDEFINED_SCENARIOS.find(s => s.description === initialDescription);
-    return initialScenario ? initialScenario.name : PREDEFINED_SCENARIOS[0].name; // Fallback if no exact match
+    return initialScenario ? initialScenario.name : PREDEFINED_SCENARIOS[0].name; 
   });
 
 
@@ -55,14 +62,14 @@ export function ConfigurationForm({ onConditionsGenerated, setIsLoadingAI }: Con
         const conditions = await handleGenerateInitialConditions(values);
         onConditionsGenerated(conditions);
         toast({
-          title: "Success",
-          description: "New initial conditions generated!",
+          title: getTranslatedText('success', language),
+          description: getTranslatedText('newConditionsGenerated', language),
         });
       } catch (error) {
         console.error(error);
         toast({
-          title: "Error",
-          description: "Failed to generate conditions. Please try a different description or try again later.",
+          title: getTranslatedText('error', language),
+          description: getTranslatedText('failedToGenerateConditions', language),
           variant: "destructive",
         });
       } finally {
@@ -71,8 +78,8 @@ export function ConfigurationForm({ onConditionsGenerated, setIsLoadingAI }: Con
     });
   };
 
-  const handleScenarioChange = (scenarioName: string) => {
-    const selectedScenario = PREDEFINED_SCENARIOS.find(s => s.name === scenarioName);
+  const handleScenarioChange = (originalScenarioName: string) => {
+    const selectedScenario = PREDEFINED_SCENARIOS.find(s => s.name === originalScenarioName);
     if (selectedScenario) {
       form.setValue('configurationDescription', selectedScenario.description, { shouldValidate: true });
       setSelectedScenarioName(selectedScenario.name);
@@ -83,23 +90,26 @@ export function ConfigurationForm({ onConditionsGenerated, setIsLoadingAI }: Con
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormItem>
-          <FormLabel>Pre-defined Scenario</FormLabel>
-          <Select onValueChange={handleScenarioChange} value={selectedScenarioName}>
+          <FormLabel>{getTranslatedText('predefinedScenario', language)}</FormLabel>
+          <Select 
+            onValueChange={handleScenarioChange} 
+            value={selectedScenarioName}
+          >
             <FormControl>
               <SelectTrigger>
-                <SelectValue placeholder="Select a scenario" />
+                <SelectValue placeholder={getTranslatedText('selectScenario', language)} />
               </SelectTrigger>
             </FormControl>
             <SelectContent>
-              {PREDEFINED_SCENARIOS.map((scenario) => (
+              {translatedScenarios.map((scenario) => (
                 <SelectItem key={scenario.name} value={scenario.name}>
-                  {scenario.name}
+                  {scenario.translatedName}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
           <FormDescription className="text-xs">
-            Selecting a scenario will populate the description below. You can still edit it.
+            {getTranslatedText('scenarioDescriptionHint', language)}
           </FormDescription>
         </FormItem>
 
@@ -108,10 +118,10 @@ export function ConfigurationForm({ onConditionsGenerated, setIsLoadingAI }: Con
           name="configurationDescription"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Orbital Configuration Description</FormLabel>
+              <FormLabel>{getTranslatedText('orbitalConfigurationDescription', language)}</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Describe the desired orbital configuration (e.g., 'A stable figure-eight orbit for three equal-mass bodies.')"
+                  placeholder={getTranslatedText('orbitalConfigurationDescriptionPlaceholder', language)}
                   {...field}
                   rows={5}
                   className="bg-muted/50 focus:bg-background"
@@ -123,7 +133,7 @@ export function ConfigurationForm({ onConditionsGenerated, setIsLoadingAI }: Con
         />
         <Button type="submit" disabled={isPending} className="w-full">
           {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-          Generate Initial Conditions
+          {isPending ? getTranslatedText('loading', language) : getTranslatedText('generateInitialConditions', language)}
         </Button>
       </form>
     </Form>
