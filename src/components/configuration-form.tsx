@@ -6,10 +6,17 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { handleGenerateInitialConditions } from '@/app/actions';
 import type { GenerateInitialConditionsOutput } from '@/types/celestial-types';
-import { DEFAULT_CONFIGURATION_DESCRIPTION } from '@/types/celestial-types';
+import { DEFAULT_CONFIGURATION_DESCRIPTION, PREDEFINED_SCENARIOS } from '@/types/celestial-types';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 
@@ -25,13 +32,21 @@ type ConfigurationFormProps = {
 export function ConfigurationForm({ onConditionsGenerated, setIsLoadingAI }: ConfigurationFormProps) {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
-
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       configurationDescription: DEFAULT_CONFIGURATION_DESCRIPTION,
     },
   });
+
+  // Initialize selectedScenarioName based on the default description
+  const [selectedScenarioName, setSelectedScenarioName] = useState<string>(() => {
+    const initialDescription = form.getValues("configurationDescription");
+    const initialScenario = PREDEFINED_SCENARIOS.find(s => s.description === initialDescription);
+    return initialScenario ? initialScenario.name : PREDEFINED_SCENARIOS[0].name; // Fallback if no exact match
+  });
+
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     setIsLoadingAI(true);
@@ -56,9 +71,38 @@ export function ConfigurationForm({ onConditionsGenerated, setIsLoadingAI }: Con
     });
   };
 
+  const handleScenarioChange = (scenarioName: string) => {
+    const selectedScenario = PREDEFINED_SCENARIOS.find(s => s.name === scenarioName);
+    if (selectedScenario) {
+      form.setValue('configurationDescription', selectedScenario.description, { shouldValidate: true });
+      setSelectedScenarioName(selectedScenario.name);
+    }
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <FormItem>
+          <FormLabel>Pre-defined Scenario</FormLabel>
+          <Select onValueChange={handleScenarioChange} value={selectedScenarioName}>
+            <FormControl>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a scenario" />
+              </SelectTrigger>
+            </FormControl>
+            <SelectContent>
+              {PREDEFINED_SCENARIOS.map((scenario) => (
+                <SelectItem key={scenario.name} value={scenario.name}>
+                  {scenario.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <FormDescription className="text-xs">
+            Selecting a scenario will populate the description below. You can still edit it.
+          </FormDescription>
+        </FormItem>
+
         <FormField
           control={form.control}
           name="configurationDescription"
