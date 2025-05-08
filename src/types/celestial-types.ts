@@ -14,14 +14,14 @@ export interface BodyState {
   path: { x: number; y: number }[];
 }
 
-export const BODY_COLORS = ['#FF4500', '#00CED1', '#9370DB']; // Orangered, DarkTurquoise, MediumPurple
+export const BODY_COLORS = ['#FFB347', '#B2FFFF', '#E6E6FA']; // Pastel Orange, Pale Cyan, Lavender
 export const BODY_NAMES = ['Alpha', 'Beta', 'Gamma'];
 
 // Default initial conditions if AI fails or before first generation
 export const DEFAULT_INITIAL_CONDITIONS: GenerateInitialConditionsOutput = {
-  body1: { mass: 1000, positionX: 0, positionY: 0, velocityX: 0, velocityY: 0 },
-  body2: { mass: 10, positionX: 400, positionY: 0, velocityX: 0, velocityY: 1.4 }, // Increased distance, adjusted velocity
-  body3: { mass: 1, positionX: 500, positionY: 0, velocityX: 0, velocityY: -0.7 }, // Increased distance, adjusted velocity
+  body1: { mass: 1200, positionX: 0, positionY: 0, velocityX: 0, velocityY: 0 },
+  body2: { mass: 15, positionX: 250, positionY: 0, velocityX: 0, velocityY: 2.0 },
+  body3: { mass: 5, positionX: -450, positionY: 0, velocityX: 0, velocityY: -1.2 },
 };
 
 export interface PredefinedScenario {

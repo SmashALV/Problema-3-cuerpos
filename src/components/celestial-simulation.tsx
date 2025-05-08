@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
@@ -14,12 +15,12 @@ interface CelestialSimulationProps {
 
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 600;
-const BODY_BASE_RADIUS = 5; // Base radius for bodies, can be scaled by mass
+const BODY_BASE_RADIUS = 5; 
 const PATH_OPACITY = 0.7;
-const TIME_STEP_BASE = 0.01; // Base time step for simulation logic
-const PARAM_TEXT_COLOR = "rgba(255, 255, 255, 0.8)"; // White text with some transparency for parameters
-const PARAM_TEXT_OFFSET_Y = 15; // Vertical offset for text relative to body
-const PARAM_LINE_HEIGHT_FACTOR = 1.2; // Factor for line height of parameter text
+const TIME_STEP_BASE = 0.01;
+const PARAM_TEXT_COLOR = "rgba(54, 64, 77, 0.9)"; // Dark text for light pastel background
+const PARAM_TEXT_OFFSET_Y = 15; 
+const PARAM_LINE_HEIGHT_FACTOR = 1.2; 
 
 export function CelestialSimulation({
   initialConditions,
@@ -30,8 +31,9 @@ export function CelestialSimulation({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameIdRef = useRef<number | null>(null);
   const [bodies, setBodies] = useState<BodyState[]>([]);
-  const [scale, setScale] = useState(1); // Scale factor for drawing
-  const [originOffset, setOriginOffset] = useState({ x: 0, y: 0 }); // To center the view
+  const [scale, setScale] = useState(1);
+  const [originOffset, setOriginOffset] = useState({ x: 0, y: 0 });
+  const [bodyImages, setBodyImages] = useState<(HTMLImageElement | null)[]>([]);
 
   const initializeBodies = useCallback(() => {
     if (!initialConditions) return;
@@ -78,6 +80,41 @@ export function CelestialSimulation({
     initializeBodies();
   }, [initialConditions, simulationKey, initializeBodies]);
 
+  useEffect(() => {
+    if (!initialConditions) return;
+
+    const loadImage = (src: string): Promise<HTMLImageElement> =>
+      new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous"; // Required for picsum.photos if canvas becomes tainted
+        img.onload = () => resolve(img);
+        img.onerror = (err) => {
+          console.error("Failed to load image:", src, err);
+          // Resolve with a null or a placeholder/error indicator if needed
+          // For simplicity, we'll let it be null and fallback to circle
+          resolve(new Image()); // Resolve with empty image to avoid breaking Promise.all
+        }
+        img.src = src;
+      });
+    
+    // data-ai-hint for body1: "star sun", body2: "planet earth", body3: "planet jupiter" (example)
+    // These are conceptual hints for the image sources.
+    const seedSuffix = simulationKey ? `_${simulationKey}` : Date.now(); // Ensure variety
+    const imagePromises = [
+      loadImage(`https://picsum.photos/seed/star${seedSuffix}/60/60`), // Larger for "star"
+      loadImage(`https://picsum.photos/seed/planetA${seedSuffix}/50/50`),
+      loadImage(`https://picsum.photos/seed/planetB${seedSuffix}/40/40`),
+    ];
+
+    Promise.all(imagePromises)
+      .then(setBodyImages)
+      .catch(err => {
+        console.error("Error loading body images:", err);
+        setBodyImages([null, null, null]); // Set to nulls on error
+      });
+  }, [initialConditions, simulationKey]);
+
+
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
@@ -106,14 +143,24 @@ export function CelestialSimulation({
         ctx.stroke();
       }
 
-      // Draw body
-      ctx.beginPath();
-      ctx.arc(body.x, body.y, body.radius / Math.sqrt(scale) , 0, 2 * Math.PI);
-      ctx.fillStyle = body.color;
-      ctx.fill();
+      // Draw body image or fallback circle
+      const img = bodyImages[index];
+      if (img?.complete && img.naturalHeight !== 0) {
+        const aspectRatio = img.naturalWidth / img.naturalHeight;
+        // Scale image size based on body.radius, ensuring it's visible
+        const baseDrawSize = Math.max(10, body.radius * 2.5); // Minimum size of 10px, scaled by radius
+        const drawHeight = baseDrawSize / Math.sqrt(scale);
+        const drawWidth = drawHeight * aspectRatio;
+        ctx.drawImage(img, body.x - drawWidth / 2, body.y - drawHeight / 2, drawWidth, drawHeight);
+      } else {
+        ctx.beginPath();
+        ctx.arc(body.x, body.y, body.radius / Math.sqrt(scale) , 0, 2 * Math.PI);
+        ctx.fillStyle = body.color;
+        ctx.fill();
+      }
       
       // Draw body parameters
-      const fontSize = 10 / scale; // Adjust font size based on scale
+      const fontSize = 10 / scale;
       ctx.fillStyle = PARAM_TEXT_COLOR;
       ctx.font = `${fontSize}px sans-serif`;
       ctx.textAlign = 'left';
@@ -126,8 +173,8 @@ export function CelestialSimulation({
         `Vel: (${body.vx.toFixed(1)}, ${body.vy.toFixed(1)})`,
       ];
       
-      const textX = body.x + (body.radius / Math.sqrt(scale)) + (5 / scale) ; // Position text to the right of the body
-      let textY = body.y - (PARAM_TEXT_OFFSET_Y / scale) * (textLines.length / 2); // Center text vertically
+      const textX = body.x + (body.radius / Math.sqrt(scale)) + (5 / scale) ;
+      let textY = body.y - (PARAM_TEXT_OFFSET_Y / scale) * (textLines.length / 2);
 
       textLines.forEach(line => {
         ctx.fillText(line, textX, textY);
@@ -136,17 +183,16 @@ export function CelestialSimulation({
     });
     ctx.restore();
 
-  }, [bodies, scale, originOffset]);
+  }, [bodies, scale, originOffset, bodyImages]);
 
   useEffect(() => {
     draw();
-  }, [draw, bodies]);
+  }, [draw, bodies, bodyImages]); // Redraw if bodyImages change too
 
   useEffect(() => {
     if (isRunning) {
       const simulate = () => {
         setBodies((prevBodies) => updateBodies(prevBodies, TIME_STEP_BASE * simulationSpeed));
-        // No need to call draw() here, as setBodies will trigger the other useEffect
         animationFrameIdRef.current = requestAnimationFrame(simulate);
       };
       animationFrameIdRef.current = requestAnimationFrame(simulate);
@@ -154,7 +200,6 @@ export function CelestialSimulation({
       if (animationFrameIdRef.current) {
         cancelAnimationFrame(animationFrameIdRef.current);
       }
-      // Draw once when paused to ensure parameters are updated
       draw();
     }
     return () => {
@@ -162,15 +207,15 @@ export function CelestialSimulation({
         cancelAnimationFrame(animationFrameIdRef.current);
       }
     };
-  }, [isRunning, simulationSpeed, draw]); // Removed `bodies` from deps, draw is called when bodies change
+  }, [isRunning, simulationSpeed, draw]);
 
   return (
     <canvas
       ref={canvasRef}
       width={CANVAS_WIDTH}
       height={CANVAS_HEIGHT}
-      className="border border-border rounded-lg shadow-xl bg-black"
-      data-ai-hint="galaxy space"
+      className="border border-border rounded-lg shadow-xl bg-background"
+      data-ai-hint="cosmic starfield"
     />
   );
 }

@@ -4,71 +4,77 @@
 
 @layer base {
   :root {
-    --background: 240 100% 6%; /* #000020 */
-    --foreground: 210 40% 98%; /* Light color for text */
+    --background: 200 60% 96%; /* very light pastel blue-cyan e.g. #edf6f9 */
+    --foreground: 220 30% 25%; /* dark grayish blue for text e.g. #36404d */
 
-    --card: 240 50% 10%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 100%; /* white */
+    --card-foreground: 220 30% 25%; /* same as main foreground */
 
-    --popover: 240 50% 10%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 100%; /* white */
+    --popover-foreground: 220 30% 25%; /* same as main foreground */
 
-    --primary: 195 53% 79%; /* #ADD8E6 Light blue accent */
-    --primary-foreground: 240 100% 6%; /* Dark color for text on primary elements */
+    --primary: 180 60% 70%; /* soft pastel teal e.g. #99dade */
+    --primary-foreground: 220 30% 15%; /* dark teal/blue for text on primary e.g. #1d242b */
 
-    --secondary: 220 40% 15%;
-    --secondary-foreground: 195 53% 79%;
+    --secondary: 200 50% 88%; /* lighter pastel blue-cyan e.g. #d3eaf2 */
+    --secondary-foreground: 220 30% 20%; /* slightly lighter dark blue e.g. #2a333d */
 
-    --muted: 220 30% 20%;
-    --muted-foreground: 210 30% 70%;
+    --muted: 200 40% 92%; /* very light muted blue-cyan e.g. #e0eff5 */
+    --muted-foreground: 220 25% 45%; /* muted text color e.g. #5f6b7a */
 
-    --accent: 195 53% 79%;
-    --accent-foreground: 240 100% 6%;
+    --accent: 300 70% 85%; /* soft pastel lavender/pink e.g. #ead4f5 */
+    --accent-foreground: 220 30% 15%; /* dark for text on accent */
 
-    --destructive: 0 70% 50%; /* Vibrant red for errors */
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 70% 75%; /* pastel red e.g. #f5a3a3 */
+    --destructive-foreground: 0 0% 100%; /* white text on destructive */
 
-    --border: 220 40% 25%;
-    --input: 220 40% 25%;
-    --ring: 195 53% 79%; /* Accent color for rings */
+    --border: 200 30% 85%; /* light pastel border e.g. #c9d8e0 */
+    --input: 200 30% 90%; /* light pastel input bg e.g. #d9e5eb */
+    --ring: 180 60% 70%; /* same as primary for focus rings */
 
     --radius: 0.5rem;
 
-    --chart-1: 195 53% 79%;
-    --chart-2: 210 40% 98%;
-    --chart-3: 220 40% 15%;
-    --chart-4: 220 30% 20%;
-    --chart-5: 210 30% 70%;
+    --chart-1: 180 60% 70%; /* primary */
+    --chart-2: 300 70% 85%; /* accent */
+    --chart-3: 40 80% 75%;  /* soft pastel orange e.g. #fbb98c */
+    --chart-4: 120 50% 75%; /* soft pastel green e.g. #a3d9a3 */
+    --chart-5: 240 60% 85%; /* soft pastel blue e.g. #c2c2f0 */
   }
 
   .dark {
-    --background: 240 100% 6%;
-    --foreground: 210 40% 98%;
+    --background: 220 30% 15%; /* dark grayish blue e.g. #1d242b */
+    --foreground: 200 40% 92%; /* light muted blue-cyan for text e.g. #e0eff5 */
 
-    --card: 240 50% 10%;
-    --card-foreground: 210 40% 98%;
+    --card: 220 30% 20%; /* slightly lighter dark blue e.g. #2a333d */
+    --card-foreground: 200 40% 92%;
 
-    --popover: 240 50% 10%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 220 30% 20%;
+    --popover-foreground: 200 40% 92%;
 
-    --primary: 195 53% 79%;
-    --primary-foreground: 240 100% 6%;
+    --primary: 180 50% 55%; /* deeper pastel teal e.g. #66b8b8 */
+    --primary-foreground: 200 60% 96%; /* very light for text on primary */
 
-    --secondary: 220 40% 15%;
-    --secondary-foreground: 195 53% 79%;
+    --secondary: 220 25% 25%; /* darker muted blue e.g. #333e4d */
+    --secondary-foreground: 200 40% 85%; /* lighter muted blue-cyan */
 
-    --muted: 220 30% 20%;
-    --muted-foreground: 210 30% 70%;
+    --muted: 220 20% 30%; /* very dark muted blue e.g. #3d4759 */
+    --muted-foreground: 200 30% 70%; /* muted light text */
 
-    --accent: 195 53% 79%;
-    --accent-foreground: 240 100% 6%;
+    --accent: 300 60% 65%; /* deeper pastel lavender/pink e.g. #c994de */
+    --accent-foreground: 200 60% 96%;
 
-    --destructive: 0 70% 50%;
+    --destructive: 0 60% 55%; /* deeper pastel red e.g. #de7070 */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 40% 25%;
-    --input: 220 40% 25%;
-    --ring: 195 53% 79%;
+    --border: 220 20% 35%; /* dark border e.g. #475466 */
+    --input: 220 20% 32%; /* dark input bg e.g. #424e5f */
+    --ring: 180 50% 55%; /* same as primary */
+
+    --chart-1: 180 50% 55%;
+    --chart-2: 300 60% 65%;
+    --chart-3: 40 70% 60%;
+    --chart-4: 120 40% 60%;
+    --chart-5: 240 50% 70%;
   }
 }
 

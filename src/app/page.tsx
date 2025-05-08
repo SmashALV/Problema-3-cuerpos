@@ -44,13 +44,13 @@ export default function Home() {
       <ScrollArea className="w-full md:w-[380px] md:h-screen border-r border-border">
         <div className="p-6 space-y-8">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight mb-1">Celestial Orbits</h1>
+            <h1 className="text-3xl font-bold tracking-tight mb-1 text-primary">Celestial Orbits</h1>
             <p className="text-sm text-muted-foreground">
               Visualize the three-body problem with AI-generated scenarios.
             </p>
           </div>
 
-          <Card className="bg-card/80 shadow-lg">
+          <Card className="bg-card shadow-lg">
             <CardHeader>
               <CardTitle className="text-xl">Understanding the Three-Body Problem</CardTitle>
             </CardHeader>
@@ -92,7 +92,7 @@ export default function Home() {
       </ScrollArea>
 
       {/* Simulation Area */}
-      <main className="flex-1 flex items-center justify-center p-4 bg-black/50 md:bg-transparent md:p-8 overflow-auto">
+      <main className="flex-1 flex items-center justify-center p-4 md:p-8 overflow-auto">
         {initialConditions ? (
           <CelestialSimulation
             initialConditions={initialConditions}
