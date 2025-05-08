@@ -71,7 +71,28 @@ export const PREDEFINED_SCENARIOS: PredefinedScenario[] = [
   {
     name: "Resonant Chain (Attempt)",
     description: "Attempt to set up a resonant orbital chain, similar to Jupiter's Galilean moons, but with three bodies. For example, Body 2 orbits Body 1, and Body 3 orbits Body 1 such that their orbital periods are in a simple integer ratio (e.g., 1:2 or 2:3). Masses can vary, with Body 1 being dominant. This configuration may be delicate and could devolve into chaos, but the initial setup should aim for resonance over a clear, large-scale area."
+  },
+  {
+    name: "Stable Resonant Orbit",
+    description: "Three bodies where Body 1 is a central star, Body 2 is an inner planet, and Body 3 is an outer planet. Their orbital periods are in a stable 1:2 resonance (Body 3 takes twice as long to orbit as Body 2). Ensure clear separation and distinct orbital paths. Masses should be Body 1 >> Body 2 > Body 3.",
+  },
+  {
+    name: "Binary Pair with Passing Star",
+    description: "A relatively tight binary system (Body 1 and Body 2, comparable masses) is approached by a third, unrelated star (Body 3, potentially more massive) on a hyperbolic or parabolic trajectory. The flyby should be close enough to significantly perturb the binary system, possibly disrupting it or altering its orbit, over a large observable area.",
+  },
+  {
+    name: "Multiple Small Bodies around Large One",
+    description: "A very massive central body (Body 1, e.g., a supergiant star or black hole). Two much smaller bodies (Body 2 and Body 3) orbit it independently at different, well-separated distances and possibly different inclinations. The goal is to show stable, independent orbits around a dominant central mass, covering a wide visual field.",
+  },
+  {
+    name: "Three-Body Escape",
+    description: "Three bodies of roughly equal mass start relatively close but with high initial velocities directed outwards from their common center of mass. The goal is to see all three bodies escape each other's gravitational influence and fly off in different directions, demonstrating an unbound system from the start. Ensure they are initially distinct and cover a significant area as they depart."
+  },
+  {
+    name: "Oscillating System",
+    description: "Three bodies, where Body 1 and Body 2 are massive and Body 3 is lighter. Body 1 and Body 2 are placed far apart with near zero initial velocity, while Body 3 is placed between them. Body 3 should oscillate back and forth between Body 1 and Body 2 due to their gravitational pulls. The system should be spread out enough to see the full oscillation path clearly."
   }
 ];
 
 export const DEFAULT_CONFIGURATION_DESCRIPTION = PREDEFINED_SCENARIOS[0].description;
+

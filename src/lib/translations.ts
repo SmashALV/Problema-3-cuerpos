@@ -47,7 +47,12 @@ type TranslationKey =
   | 'binaryDistantOrbiterScenarioName'
   | 'slingshotScenarioName'
   | 'nearCollisionChaosScenarioName'
-  | 'resonantChainScenarioName';
+  | 'resonantChainScenarioName'
+  | 'stableResonantOrbitScenarioName'
+  | 'binaryPairPassingStarScenarioName'
+  | 'multipleSmallBodiesLargeOneScenarioName'
+  | 'threeBodyEscapeScenarioName'
+  | 'oscillatingSystemScenarioName';
 
 
 const translations: Record<Language, Record<TranslationKey, string>> = {
@@ -99,6 +104,11 @@ const translations: Record<Language, Record<TranslationKey, string>> = {
     slingshotScenarioName: "Slingshot Maneuver",
     nearCollisionChaosScenarioName: "Near-Collision Chaos",
     resonantChainScenarioName: "Resonant Chain (Attempt)",
+    stableResonantOrbitScenarioName: "Stable Resonant Orbit (1:2)",
+    binaryPairPassingStarScenarioName: "Binary Pair with Passing Star",
+    multipleSmallBodiesLargeOneScenarioName: "Multiple Small Bodies around Large One",
+    threeBodyEscapeScenarioName: "Three-Body Escape",
+    oscillatingSystemScenarioName: "Oscillating System",
   },
   es: {
     celestialOrbits: 'Órbitas Celestiales',
@@ -148,6 +158,11 @@ const translations: Record<Language, Record<TranslationKey, string>> = {
     slingshotScenarioName: "Maniobra de Tirachinas",
     nearCollisionChaosScenarioName: "Caos por Casi Colisión",
     resonantChainScenarioName: "Cadena Resonante (Intento)",
+    stableResonantOrbitScenarioName: "Órbita Resonante Estable (1:2)",
+    binaryPairPassingStarScenarioName: "Par Binario con Estrella Pasante",
+    multipleSmallBodiesLargeOneScenarioName: "Múltiples Cuerpos Pequeños alrededor de Uno Grande",
+    threeBodyEscapeScenarioName: "Escape de Tres Cuerpos",
+    oscillatingSystemScenarioName: "Sistema Oscilante",
   },
 };
 
@@ -168,7 +183,13 @@ export function getTranslatedScenarioName(originalName: string, lang: Language):
         "Slingshot Maneuver": "slingshotScenarioName",
         "Near-Collision Chaos": "nearCollisionChaosScenarioName",
         "Resonant Chain (Attempt)": "resonantChainScenarioName",
+        "Stable Resonant Orbit": "stableResonantOrbitScenarioName",
+        "Binary Pair with Passing Star": "binaryPairPassingStarScenarioName",
+        "Multiple Small Bodies around a Large One": "multipleSmallBodiesLargeOneScenarioName",
+        "Three-Body Escape": "threeBodyEscapeScenarioName",
+        "Oscillating System": "oscillatingSystemScenarioName",
     };
     const key = scenarioKeyMap[originalName];
     return key ? getTranslatedText(key, lang) : originalName;
 }
+

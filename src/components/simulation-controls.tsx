@@ -20,7 +20,8 @@ type SimulationControlsProps = {
 };
 
 const MIN_SPEED = 0.1;
-const MAX_SPEED = 30;
+const MAX_SPEED_SLIDER = 30; // Max speed for the slider
+const MAX_SPEED_INPUT_FIELD = 1000; // Max speed for the input field, can be higher than slider
 
 export function SimulationControls({
   isRunning,
@@ -46,7 +47,8 @@ export function SimulationControls({
     if (isNaN(newSpeed)) {
       newSpeed = MIN_SPEED;
     }
-    newSpeed = Math.max(MIN_SPEED, Math.min(MAX_SPEED, newSpeed));
+    // Clamp only to MIN_SPEED and the input field's max speed
+    newSpeed = Math.max(MIN_SPEED, Math.min(MAX_SPEED_INPUT_FIELD, newSpeed));
     onSpeedChange(newSpeed);
     setSpeedInputValue(newSpeed.toFixed(1));
   };
@@ -93,9 +95,9 @@ export function SimulationControls({
             <Slider
               id="speed-slider"
               min={MIN_SPEED}
-              max={MAX_SPEED}
+              max={MAX_SPEED_SLIDER} // Slider uses its own max speed
               step={0.1}
-              value={[simulationSpeed]}
+              value={[Math.min(simulationSpeed, MAX_SPEED_SLIDER)]} // Ensure slider value doesn't exceed its max
               onValueChange={(value) => onSpeedChange(value[0])}
               disabled={isLoading}
               className="flex-grow"
@@ -107,7 +109,7 @@ export function SimulationControls({
               onBlur={handleSpeedInputBlur}
               onKeyDown={handleSpeedInputKeyDown}
               min={MIN_SPEED}
-              max={MAX_SPEED}
+              max={MAX_SPEED_INPUT_FIELD} // Input field uses its own, potentially higher, max speed
               step={0.1}
               disabled={isLoading}
               className="w-20 h-9 text-sm"
@@ -119,3 +121,4 @@ export function SimulationControls({
     </Card>
   );
 }
+
