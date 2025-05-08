@@ -106,7 +106,7 @@ function PageContent() {
         </div>
       </ScrollArea>
 
-      <main className="flex-1 flex items-center justify-center p-4 md:p-8 overflow-auto">
+      <main className="flex-1 flex items-center justify-center p-4 md:p-8 overflow-auto bg-background md:bg-transparent"> {/* Conditional background for main */}
         {initialConditions ? (
           <CelestialSimulation
             initialConditions={initialConditions}

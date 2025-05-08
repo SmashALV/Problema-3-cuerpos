@@ -16,13 +16,22 @@ interface CelestialSimulationProps {
 
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 600;
-const BODY_BASE_RADIUS = 5; 
+const BODY_BASE_RADIUS = 5;
 const PATH_OPACITY = 0.7;
 const TIME_STEP_BASE = 0.01;
-const PARAM_TEXT_COLOR_LIGHT = "rgba(54, 64, 77, 0.9)"; 
+const PARAM_TEXT_COLOR_LIGHT = "rgba(200, 210, 220, 0.9)"; // Lighter for dark background
 const PARAM_TEXT_COLOR_DARK = "rgba(224, 239, 245, 0.9)";
-const PARAM_TEXT_OFFSET_Y = 15; 
-const PARAM_LINE_HEIGHT_FACTOR = 1.2; 
+const PARAM_TEXT_OFFSET_Y = 15;
+const PARAM_LINE_HEIGHT_FACTOR = 1.2;
+const BACKGROUND_COLOR_DARK = '#0a0f1a'; // Dark space blue/black
+const STAR_COUNT = 200; // Number of stars for the background
+
+interface Star {
+  x: number;
+  y: number;
+  radius: number;
+  alpha: number;
+}
 
 export function CelestialSimulation({
   initialConditions,
@@ -38,6 +47,22 @@ export function CelestialSimulation({
   const [bodyImages, setBodyImages] = useState<(HTMLImageElement | null)[]>([]);
   const { language } = useLanguage();
   const [currentTheme, setCurrentTheme] = useState('light');
+  const [stars, setStars] = useState<Star[]>([]);
+
+  // Initialize stars
+  useEffect(() => {
+    const newStars: Star[] = [];
+    for (let i = 0; i < STAR_COUNT; i++) {
+      newStars.push({
+        x: Math.random() * CANVAS_WIDTH,
+        y: Math.random() * CANVAS_HEIGHT,
+        radius: Math.random() * 1.2 + 0.3, // Star radius between 0.3 and 1.5
+        alpha: Math.random() * 0.5 + 0.5, // Star opacity between 0.5 and 1.0
+      });
+    }
+    setStars(newStars);
+  }, []);
+
 
   useEffect(() => {
     // Track theme changes for canvas text color
@@ -68,7 +93,7 @@ export function CelestialSimulation({
       vx: b.velocityX,
       vy: b.velocityY,
       color: BODY_COLORS[index % BODY_COLORS.length],
-      radius: BODY_BASE_RADIUS * Math.max(1, Math.log10(Math.max(1,b.mass))), 
+      radius: BODY_BASE_RADIUS * Math.max(1, Math.log10(Math.max(1,b.mass))),
       path: [{ x: b.positionX, y: b.positionY }],
       nameKey: BODY_NAME_KEYS[index % BODY_NAME_KEYS.length],
     }));
@@ -85,13 +110,13 @@ export function CelestialSimulation({
     const centerX = (minX + maxX) / 2;
     const centerY = (minY + maxY) / 2;
     setOriginOffset({ x: centerX, y: centerY });
-    
+
     const spreadX = Math.max(1, maxX - minX);
     const spreadY = Math.max(1, maxY - minY);
-    
+
     const scaleX = CANVAS_WIDTH / (spreadX * 1.5 || CANVAS_WIDTH);
     const scaleY = CANVAS_HEIGHT / (spreadY * 1.5 || CANVAS_HEIGHT);
-    setScale(Math.min(scaleX, scaleY, 1)); 
+    setScale(Math.min(scaleX, scaleY, 1));
 
   }, [initialConditions]);
 
@@ -109,11 +134,11 @@ export function CelestialSimulation({
         img.onload = () => resolve(img);
         img.onerror = (err) => {
           console.error("Failed to load image:", src, err);
-          resolve(new Image()); 
+          resolve(new Image());
         }
         img.src = src;
       });
-    
+
     const seedSuffix = simulationKey ? `_${simulationKey}` : Date.now();
     const imagePromises = [
       loadImage(`https://picsum.photos/seed/star${seedSuffix}/60/60`),
@@ -135,8 +160,19 @@ export function CelestialSimulation({
     const ctx = canvas?.getContext('2d');
     if (!ctx || !canvas) return;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+    // Draw background
+    ctx.fillStyle = BACKGROUND_COLOR_DARK;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw stars (static on canvas, not affected by simulation zoom/pan)
+    stars.forEach(star => {
+      ctx.beginPath();
+      ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
+      ctx.fill();
+    });
+
+
     const canvasCenterX = canvas.width / 2;
     const canvasCenterY = canvas.height / 2;
 
@@ -165,7 +201,7 @@ export function CelestialSimulation({
         const baseDrawSize = Math.max(10, body.radius * 2.5);
         let imgDrawHeight = baseDrawSize / Math.sqrt(scale);
         let imgDrawWidth = imgDrawHeight * aspectRatio;
-        
+
         const diameter = Math.min(imgDrawWidth, imgDrawHeight); // Ensure circular clipping
         const radiusForClip = diameter / 2;
 
@@ -174,21 +210,11 @@ export function CelestialSimulation({
         ctx.arc(body.x, body.y, radiusForClip, 0, Math.PI * 2, true);
         ctx.closePath();
         ctx.clip();
-        
+
         // Draw image centered to fill the clipped circle
-        // If image is not square, this will crop it to fit the circle
-        if (imgDrawWidth > imgDrawHeight) { // Landscape or square
-            imgDrawHeight = diameter;
-            imgDrawWidth = diameter * aspectRatio;
-        } else { // Portrait
-            imgDrawWidth = diameter;
-            imgDrawHeight = diameter / aspectRatio;
-        }
-        // Ensure the image covers the circle area before clipping.
-        // The smaller dimension of the image should match the diameter of the circle.
         let sx = 0, sy = 0, sWidth = img.naturalWidth, sHeight = img.naturalHeight;
         const targetDiameter = diameter;
-        
+
         if (img.naturalWidth > img.naturalHeight) { // Landscape
             sWidth = img.naturalHeight;
             sx = (img.naturalWidth - img.naturalHeight) / 2;
@@ -204,7 +230,7 @@ export function CelestialSimulation({
             body.x - targetDiameter / 2, body.y - targetDiameter / 2, // Destination x, y
             targetDiameter, targetDiameter // Destination width, height
         );
-        
+
         ctx.restore(); // Restore context to remove clipping
       } else {
         ctx.beginPath();
@@ -212,9 +238,10 @@ export function CelestialSimulation({
         ctx.fillStyle = body.color;
         ctx.fill();
       }
-      
+
       // Draw body parameters
       const fontSize = 10 / scale;
+      // Always use a light color for text on the dark space background
       ctx.fillStyle = currentTheme === 'dark' ? PARAM_TEXT_COLOR_DARK : PARAM_TEXT_COLOR_LIGHT;
       ctx.font = `${fontSize}px sans-serif`;
       ctx.textAlign = 'left';
@@ -226,7 +253,7 @@ export function CelestialSimulation({
         `${getTranslatedText('positionXY', language)}: (${body.x.toFixed(1)}, ${body.y.toFixed(1)})`,
         `${getTranslatedText('velocityVxVy', language)}: (${body.vx.toFixed(1)}, ${body.vy.toFixed(1)})`,
       ];
-      
+
       const textX = body.x + (body.radius / Math.sqrt(scale)) + (5 / scale) ;
       let textY = body.y - (PARAM_TEXT_OFFSET_Y / scale) * (textLines.length / 2);
 
@@ -237,11 +264,11 @@ export function CelestialSimulation({
     });
     ctx.restore();
 
-  }, [bodies, scale, originOffset, bodyImages, language, currentTheme]);
+  }, [bodies, scale, originOffset, bodyImages, language, currentTheme, stars]);
 
   useEffect(() => {
     draw();
-  }, [draw, bodies, bodyImages]); 
+  }, [draw, bodies, bodyImages]);
 
   useEffect(() => {
     if (isRunning) {
@@ -261,15 +288,15 @@ export function CelestialSimulation({
         cancelAnimationFrame(animationFrameIdRef.current);
       }
     };
-  }, [isRunning, simulationSpeed, draw]); // Removed updateBodies from dependencies as it's stable
+  }, [isRunning, simulationSpeed, draw]);
 
   return (
     <canvas
       ref={canvasRef}
       width={CANVAS_WIDTH}
       height={CANVAS_HEIGHT}
-      className="border border-border rounded-lg shadow-xl bg-background"
-      data-ai-hint="cosmic starfield"
+      className="border border-border rounded-lg shadow-xl" // Removed bg-background, canvas handles its own background
+      data-ai-hint="cosmic starfield" // This hint is now directly implemented
     />
   );
 }
