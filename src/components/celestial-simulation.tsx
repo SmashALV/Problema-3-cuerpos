@@ -29,7 +29,7 @@ const TIME_STEP_BASE = 0.01;
 const PARAM_TEXT_COLOR = "rgba(224, 239, 245, 0.9)";
 const PARAM_TEXT_OFFSET_Y = 15;
 const PARAM_LINE_HEIGHT_FACTOR = 1.2;
-const BACKGROUND_COLOR_DARK = '#0a0f1a';
+const BACKGROUND_COLOR_DARK = '#000020'; // Deep space color
 const STAR_COUNT = 200;
 
 interface Star {
@@ -155,8 +155,8 @@ export function CelestialSimulation({
         const img = new Image();
         img.crossOrigin = "anonymous";
         img.onload = () => resolve(img);
-        img.onerror = (err) => {
-          console.error("Failed to load image:", src, err);
+        img.onerror = (_err) => {
+          // console.error("Failed to load image:", src, err); // Removed to prevent console error spam
           const fallbackImg = new Image(); // Create an empty image as fallback
           resolve(fallbackImg); // Resolve with empty image on error
         }
@@ -175,8 +175,8 @@ export function CelestialSimulation({
       .then(loadedImages => {
         setBodyImages(loadedImages.map(img => img.naturalHeight !== 0 ? img : null));
       })
-      .catch(err => { // Should not be reached if loadImage always resolves
-        console.error("Error loading body images:", err);
+      .catch(err => { 
+        console.warn("Error processing body images after attempting to load (this should be rare):", err);
         setBodyImages([null, null, null]);
       });
   }, [initialConditions, simulationKey]);
