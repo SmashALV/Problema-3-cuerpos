@@ -222,4 +222,3 @@ export function getTranslatedScenarioName(originalName: string, lang: Language):
     const key = scenarioKeyMap[originalName];
     return key ? getTranslatedText(key, lang) : originalName;
 }
-```
