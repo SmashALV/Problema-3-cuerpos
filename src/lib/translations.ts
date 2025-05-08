@@ -30,7 +30,11 @@ type TranslationKey =
   | 'initialBodyParameters'
   | 'noParametersLoaded'
   | 'mass'
+  | 'positionX'
+  | 'positionY'
   | 'positionXY'
+  | 'velocityX'
+  | 'velocityY'
   | 'velocityVxVy'
   | 'alpha'
   | 'beta'
@@ -52,7 +56,13 @@ type TranslationKey =
   | 'binaryPairPassingStarScenarioName'
   | 'multipleSmallBodiesLargeOneScenarioName'
   | 'threeBodyEscapeScenarioName'
-  | 'oscillatingSystemScenarioName';
+  | 'oscillatingSystemScenarioName'
+  | 'simulationDisclaimer'
+  | 'toggleFullscreen'
+  | 'closePanel'
+  | 'openPanel'
+  | 'bodyParameters'
+  | 'applyChanges';
 
 
 const translations: Record<Language, Record<TranslationKey, string>> = {
@@ -86,7 +96,11 @@ const translations: Record<Language, Record<TranslationKey, string>> = {
     initialBodyParameters: 'Initial Body Parameters',
     noParametersLoaded: 'No parameters loaded. Generate initial conditions.',
     mass: 'Mass',
+    positionX: 'Position X',
+    positionY: 'Position Y',
     positionXY: 'Position (X, Y)',
+    velocityX: 'Velocity X',
+    velocityY: 'Velocity Y',
     velocityVxVy: 'Velocity (Vx, Vy)',
     alpha: 'Alpha',
     beta: 'Beta',
@@ -109,6 +123,12 @@ const translations: Record<Language, Record<TranslationKey, string>> = {
     multipleSmallBodiesLargeOneScenarioName: "Multiple Small Bodies around Large One",
     threeBodyEscapeScenarioName: "Three-Body Escape",
     oscillatingSystemScenarioName: "Oscillating System",
+    simulationDisclaimer: 'This simulation provides a simplified model. Actual celestial mechanics are more complex.',
+    toggleFullscreen: 'Toggle Fullscreen',
+    closePanel: 'Close Panel',
+    openPanel: 'Open Panel',
+    bodyParameters: 'Body Parameters',
+    applyChanges: 'Apply Changes',
   },
   es: {
     celestialOrbits: 'Órbitas Celestiales',
@@ -140,7 +160,11 @@ const translations: Record<Language, Record<TranslationKey, string>> = {
     initialBodyParameters: 'Parámetros Iniciales del Cuerpo',
     noParametersLoaded: 'No hay parámetros cargados. Genera condiciones iniciales.',
     mass: 'Masa',
+    positionX: 'Posición X',
+    positionY: 'Posición Y',
     positionXY: 'Posición (X, Y)',
+    velocityX: 'Velocidad X',
+    velocityY: 'Velocidad Y',
     velocityVxVy: 'Velocidad (Vx, Vy)',
     alpha: 'Alfa',
     beta: 'Beta',
@@ -163,11 +187,17 @@ const translations: Record<Language, Record<TranslationKey, string>> = {
     multipleSmallBodiesLargeOneScenarioName: "Múltiples Cuerpos Pequeños alrededor de Uno Grande",
     threeBodyEscapeScenarioName: "Escape de Tres Cuerpos",
     oscillatingSystemScenarioName: "Sistema Oscilante",
+    simulationDisclaimer: 'Esta simulación proporciona un modelo simplificado. La mecánica celeste real es más compleja.',
+    toggleFullscreen: 'Alternar Pantalla Completa',
+    closePanel: 'Cerrar Panel',
+    openPanel: 'Abrir Panel',
+    bodyParameters: 'Parámetros del Cuerpo',
+    applyChanges: 'Aplicar Cambios',
   },
 };
 
 export function getTranslatedText(key: TranslationKey, lang: Language): string {
-  return translations[lang][key] || translations['en'][key]; // Fallback to English if translation is missing
+  return translations[lang]?.[key] || translations['en'][key] || key; // Fallback to English or key itself
 }
 
 // Helper to get translated scenario names
@@ -183,7 +213,7 @@ export function getTranslatedScenarioName(originalName: string, lang: Language):
         "Slingshot Maneuver": "slingshotScenarioName",
         "Near-Collision Chaos": "nearCollisionChaosScenarioName",
         "Resonant Chain (Attempt)": "resonantChainScenarioName",
-        "Stable Resonant Orbit": "stableResonantOrbitScenarioName",
+        "Stable Resonant Orbit": "stableResonantOrbitScenarioName", // Note: Previous key was "Stable Resonant Orbit (1:2)"
         "Binary Pair with Passing Star": "binaryPairPassingStarScenarioName",
         "Multiple Small Bodies around a Large One": "multipleSmallBodiesLargeOneScenarioName",
         "Three-Body Escape": "threeBodyEscapeScenarioName",
@@ -192,4 +222,4 @@ export function getTranslatedScenarioName(originalName: string, lang: Language):
     const key = scenarioKeyMap[originalName];
     return key ? getTranslatedText(key, lang) : originalName;
 }
-
+```
