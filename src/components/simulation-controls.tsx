@@ -51,7 +51,7 @@ export function SimulationControls({
           <Slider
             id="speed-slider"
             min={0.1}
-            max={5}
+            max={10} // Increased maximum speed from 5 to 10
             step={0.1}
             value={[simulationSpeed]}
             onValueChange={(value) => onSpeedChange(value[0])}
