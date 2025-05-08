@@ -32,17 +32,21 @@ export function SimulationControls({
       <CardContent className="space-y-6">
         <div className="flex space-x-2">
           <Button onClick={onPlayPause} disabled={isLoading} className="flex-1">
-            {isLoading ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
+            {isLoading && !isRunning ? ( // Show loader only if loading AND not already running
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
             ) : isRunning ? (
               <Pause className="mr-2 h-5 w-5" />
             ) : (
               <Play className="mr-2 h-5 w-5" />
             )}
-            {isLoading ? 'Loading...' : isRunning ? 'Pause' : 'Play'}
+            {isLoading && !isRunning ? 'Loading...' : isRunning ? 'Pause' : 'Play'}
           </Button>
           <Button onClick={onReset} disabled={isLoading || isRunning} variant="outline" className="flex-1">
-            <RotateCcw className="mr-2 h-5 w-5" />
+            {isLoading && isRunning ? ( // If loading but was running, reset might be in progress from new conditions
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+            ) : (
+                <RotateCcw className="mr-2 h-5 w-5" />
+            )}
             Reset
           </Button>
         </div>
@@ -51,7 +55,7 @@ export function SimulationControls({
           <Slider
             id="speed-slider"
             min={0.1}
-            max={10} // Increased maximum speed from 5 to 10
+            max={30} // Increased maximum speed from 10 to 30
             step={0.1}
             value={[simulationSpeed]}
             onValueChange={(value) => onSpeedChange(value[0])}

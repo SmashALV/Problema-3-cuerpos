@@ -4,6 +4,7 @@ import React, { useState, useCallback } from 'react';
 import { ConfigurationForm } from '@/components/configuration-form';
 import { SimulationControls } from '@/components/simulation-controls';
 import { CelestialSimulation } from '@/components/celestial-simulation';
+import { SimulationParameters } from '@/components/simulation-parameters'; // Added import
 import type { GenerateInitialConditionsOutput } from '@/types/celestial-types';
 import { DEFAULT_INITIAL_CONDITIONS } from '@/types/celestial-types';
 import { Separator } from '@/components/ui/separator';
@@ -29,9 +30,6 @@ export default function Home() {
 
   const handleReset = useCallback(() => {
     setIsRunning(false);
-    // Optionally, reset to default or last generated. Here, we stick to current `initialConditions` but reset state via key.
-    // If you want to reset to truly default, uncomment next line:
-    // setInitialConditions(DEFAULT_INITIAL_CONDITIONS); 
     setSimulationKey(Date.now());
   }, []);
 
@@ -61,6 +59,8 @@ export default function Home() {
             onSpeedChange={handleSpeedChange}
             isLoading={isLoadingAI}
           />
+           <Separator />
+           <SimulationParameters initialConditions={initialConditions} /> {/* Added component */}
            <Separator />
            <div className="text-xs text-muted-foreground pt-4">
             <p>Keyboard shortcut: <kbd className="px-2 py-1.5 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500">Ctrl/Cmd</kbd> + <kbd className="px-2 py-1.5 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500">B</kbd> to toggle sidebar (if using SidebarProvider).</p>
